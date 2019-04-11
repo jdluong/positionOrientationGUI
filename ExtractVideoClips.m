@@ -43,7 +43,7 @@ for trl = 1:length(trial_time_start)
             fileID = sprintf('Trial%03i_PoTrl%03i_%d.jpg', trl, poTrlNdx, trial_IDs(trl));
             poTrlNdx = poTrlNdx+1;
         end 
-        imwrite(sprintf('%s%s', videoDir, curFrame),fileID);
+        imwrite(curFrame, sprintf('%s%s', videoDir, fileID));
         fileIndex{trl} = [fileIndex{trl}; [{fileID} {find(curTime>=time_vals,1,'last')} {curTime}]];
         curTime = video.CurrentTime;
         curFrame = readFrame(video);
