@@ -2,30 +2,39 @@ function ExtractVideoClips
 %% Code to extract video stills from relevant behavioral videos
 
 [videoFile, fileDir, ~] = uigetfile('*.avi', 'Locate the .AVI file of interest');
+params.VideoFile = [fileDir videoFile];
 video = VideoReader([fileDir videoFile]);
 files = dir(fileDir);
 fileNames = {files.name};
 behavFile = cellfun(@(a)~isempty(a), regexp(fileNames, 'BehaviorMatrix'));
 if sum(behavFile)==1
     load([fileDir '\' fileNames{behavFile}]);
+    params.BehavFile = [fileDir '\' fileNames{behavFile}];
 else
     [behavFile, behavDir, ~] = uigetfile('*.mat', 'Identify the associated BehaviorMatrix file');
     load([behavDir '\' behavFile]);
+    params.BehavFile = [behavDir '\' behavFile];
 end
 
 [trial_time_start, trial_time_end, trial_IDs, time_vals] = trial_time_extract(behavMatrix, behavMatrixColIDs);
 clc;
 preTrialDur = input('How many millisecond BEFORE trial start do you want to include?');
+params.PreTrialDuration = preTrialDur/1000;
 postTrialDur = input('How many milliseconds AFTER trial start do you want to include?');
+params.PostTrialDuration = postTrialDur/1000;
 
 if ~isdir([fileDir 'VideoStills'])
     mkdir([fileDir 'VideoStills']);
 end
 videoDir = [fileDir 'VideoStills\'];
 fileIndex = cell(size(trial_time_start));
+video.CurrentTime = behavMatrix(find(behavMatrix(:,end-1)>=900,1,'first'),1);
+curFrame = readFrame(video);
+imwrite(curFrame, sprintf('%s%s_PortIndex.jpg', videoDir, videoFile(1:end-4)));
+params.PortIndexFig = sprintf('%s%s_PortIndex.jpg', videoDir, videoFile(1:end-4));
 for trl = 1:length(trial_time_start)
-    curStart = trial_time_start(trl)-(preTrialDur/1000);
-    curEnd = trial_time_end(trl)+(postTrialDur/1000);
+    curStart = trial_time_start(trl) - params.PreTrialDuration;
+    curEnd = trial_time_end(trl) + params.PostTrialDuration;
     curTime = curStart;
     video.CurrentTime = curStart;
     curFrame = readFrame(video);
@@ -49,7 +58,8 @@ for trl = 1:length(trial_time_start)
         curFrame = readFrame(video);
     end
 end
-save(sprintf('%s%s_File_Index.mat', videoDir, videoFile(1:end-4)), 'fileIndex');
+save(sprintf('%s%s_File_Index.mat', videoDir, videoFile(1:end-4)), 'fileIndex', 'params');
+disp 'Clips Extracted!'
 end
 
 
