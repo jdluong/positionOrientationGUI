@@ -31,7 +31,7 @@ fileIndex = cell(size(trial_time_start));
 video.CurrentTime = behavMatrix(find(behavMatrix(:,end-1)>=900,1,'first'),1);
 curFrame = readFrame(video);
 imwrite(curFrame, sprintf('%s%s_PortIndex.jpg', videoDir, videoFile(1:end-4)));
-params.PortIndexFig = sprintf('%s%s_PortIndex.jpg', videoDir, videoFile(1:end-4));
+params.PortIndexFig = sprintf('%s_PortIndex.jpg', videoFile(1:end-4));
 for trl = 1:length(trial_time_start)
     curStart = trial_time_start(trl) - params.PreTrialDuration;
     curEnd = trial_time_end(trl) + params.PostTrialDuration;
