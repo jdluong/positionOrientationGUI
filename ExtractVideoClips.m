@@ -63,7 +63,6 @@ disp 'Clips Extracted!'
 end
 
 
-
 function [trial_time_start, trial_time_end, trial_IDs, time_vals] = trial_time_extract(statMatrix, statMatrixColIDs)
 time_vals = statMatrix(:,strcmp(statMatrixColIDs, 'TimeBin'));
 odor_pos = cellfun(@(a)~isempty(a), regexp(statMatrixColIDs, 'Odor'));
