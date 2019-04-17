@@ -29,7 +29,7 @@ switch analysisDecision
         % in a different orientation.
         fileIndices = cellfun(@(a)a', fileIndex, 'uniformoutput', 0);
         fileIndices = [fileIndices{:}]';
-        fileIndices(randperm(size(fileIndices,1)),:) = fileIndices;
+%         fileIndices(randperm(size(fileIndices,1)),:) = fileIndices;   % Comment in to shuffle the file indices
         fileIndices = [fileIndices, cell(size(fileIndices,1), 6)];
         fileIndicesColIDs = [{'FileID'}, {'FrameIndex'}, {'FrameTimestamp'}, {'PortX'}, {'PortY'}, {'HeadX'}, {'HeadY'}, {'TailX'}, {'TailY'}];
         
@@ -86,7 +86,7 @@ headDot = plot(1,1, 'Marker', 'o', 'MarkerFaceColor', 'red', 'MarkerSize', 10, '
 tailDot = plot(1,1, 'Marker', 'o', 'MarkerFaceColor', 'green', 'MarkerSize', 10, 'visible', 'off', 'Tag', 'TailDot');
 
 annotation(analysisFig, 'rectangle', 'Position', [0.6,0.37,0.375, 0.25]);
-fileNameTxt = uicontrol(analysisFig, 'Units', 'Normalized', 'Style', 'text', 'String', orientData.FileIndices{orientData.CurIndex,1},...
+fileNameTxt = uicontrol(analysisFig, 'Units', 'Normalized', 'Style', 'text', 'String', sprintf('%s (%i/%i)', orientData.FileIndices{orientData.CurIndex,1}, orientData.CurIndex, size(orientData.FileIndices,1)),...
     'Position', [0.1 0.9 0.5 0.05], 'Tag', 'FileNameTXT', 'FontSize', 12);
 markHeadLoc = uicontrol(analysisFig, 'Units', 'Normalized', 'Style', 'pushbutton', 'String', 'Mark Head (Implant) Location',...
     'Position', [0.6135,0.5,0.35,0.08], 'Tag', 'HeadMarkPB', 'FontSize', 14, 'Callback', @MarkHeadLocation);
@@ -326,7 +326,7 @@ else
     curFigCropped = imcrop(fig2display,[orientData.CropVals(1,1) orientData.CropVals(1,2) orientData.CropVals(2,1)-orientData.CropVals(1,1) orientData.CropVals(2,2)-orientData.CropVals(1,2)]);
     curImg = findobj('Tag', 'CurImg');
     set(curImg, 'CData', curFigCropped);
-    set(fileNameTxt, 'String', orientData.FileIndices{orientData.CurIndex,1});
+    set(fileNameTxt, 'String', sprintf('%s (%i/%i)', orientData.FileIndices{orientData.CurIndex,1}, orientData.CurIndex, size(orientData.FileIndices,1)));
     set(analysisFig, 'UserData', orientData);
 end
 end
