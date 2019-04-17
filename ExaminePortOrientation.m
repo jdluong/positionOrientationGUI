@@ -69,7 +69,9 @@ axes(imageAxes);
 imshow(curFigCropped)
 
 
-%% Define UI buttons
+%% UI button examples (taken from manualArtifactRemoval)
+% Need to add in UI buttons to enable tail location and head location
+% choice
 % UI buttons for index control
 saveLimitsbtn = uicontrol(analysisFig, 'Units', 'Normalized', 'Style', 'pushbutton', 'String', 'Select Bad Indices',...
     'Position', [0.025,0.25,0.075,0.035],'Callback', @SaveAxisLimits);
