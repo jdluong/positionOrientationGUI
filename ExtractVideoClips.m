@@ -58,7 +58,7 @@ for trl = 1:length(trial_time_start)
         curFrame = readFrame(video);
     end
 end
-save(sprintf('%s%s_File_Index.mat', videoDir, videoFile(1:end-4)), 'fileIndex', 'params');
+save(sprintf('%s%s_File_Index.mat', videoDir, videoFile(1:end-4)), 'fileIndex', 'params', 'time_vals');
 disp 'Clips Extracted!'
 end
 
