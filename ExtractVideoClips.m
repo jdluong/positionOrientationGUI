@@ -13,7 +13,7 @@ if sum(behavFile)==1
 else
     [behavFile, behavDir, ~] = uigetfile('*.mat', 'Identify the associated BehaviorMatrix file');
     load([behavDir '\' behavFile]);
-    params.BehavFile = [behavDir '\' behavFile];
+    params.BehavFile = [behavDir behavFile];
 end
 
 [trial_time_start, trial_time_end, trial_IDs, time_vals] = trial_time_extract(behavMatrix, behavMatrixColIDs);
