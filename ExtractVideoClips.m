@@ -53,7 +53,7 @@ poTrlNdx = 1;
 curFrame = readFrame(video);
 txt = fgetl(frameMarkFile);
 
-while trial < length(trial_time_start)
+while trial <= length(trial_time_start)
     writing = 1;
     curMarkerTime = str2double(txt);
     if curMarkerTime>=behavMatrix(find(behavMatrix(:,end-1)>=900,1,'first'),1) && ~portIndexTaken
