@@ -33,7 +33,7 @@ clc;
 % Determine timeperiods of interest
 preTrialDur = input('How many millisecond BEFORE trial start do you want to include?');
 params.PreTrialDuration = preTrialDur/1000;
-postTrialDur = input('How many milliseconds AFTER trial start do you want to include?');
+postTrialDur = input('How many milliseconds AFTER trial end do you want to include?');
 params.PostTrialDuration = postTrialDur/1000;
 trialWindows = [trial_time_start-params.PreTrialDuration trial_time_end+params.PostTrialDuration];
 
