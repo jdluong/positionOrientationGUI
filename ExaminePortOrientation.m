@@ -29,7 +29,7 @@ switch analysisDecision
         % in a different orientation.
         fileIndices = cellfun(@(a)a', fileIndex, 'uniformoutput', 0);
         fileIndices = [fileIndices{:}]';
-%         fileIndices(randperm(size(fileIndices,1)),:) = fileIndices;   % Comment in to shuffle the file indices
+        fileIndices(randperm(size(fileIndices,1)),:) = fileIndices;   % Comment in to shuffle the file indices
         fileIndices = [fileIndices, cell(size(fileIndices,1), 6)];
         fileIndicesColIDs = [{'FileID'}, {'FrameIndex'}, {'FrameTimestamp'}, {'PortX'}, {'PortY'}, {'HeadX'}, {'HeadY'}, {'TailX'}, {'TailY'}];
         
@@ -74,6 +74,18 @@ end
 analysisFig = figure('Position', [scrsz(3)/8 scrsz(4)/8 scrsz(3)*.6 scrsz(3)*.4],...
     'Name', 'Orientation Analysis', 'NumberTitle', 'off','Tag', 'AnalysisFig',...
     'UserData', orientData);
+markHeadLoc = uicontrol(analysisFig, 'Units', 'Normalized', 'Style', 'pushbutton', 'String', 'Mark Head (Implant) Location',...
+    'Position', [0.6135,0.5,0.35,0.08], 'Tag', 'HeadMarkPB', 'FontSize', 14, 'Callback', @MarkHeadLocation);
+markTailLoc = uicontrol(analysisFig, 'Units', 'Normalized', 'Style', 'pushbutton', 'String', 'Mark the Base of the Rat''s Tail',...
+    'Position', [0.6135,0.4,0.35,0.08], 'Tag', 'TailMarkPB', 'FontSize', 14, 'Callback', @MarkTailLocation);
+nextSlide = uicontrol(analysisFig, 'Units', 'Normalized', 'Style', 'pushbutton', 'String', 'Next Slide',...
+    'Position', [0.6,0.1,0.375,0.2], 'Tag', 'NexSlidePB', 'FontSize', 14, 'Callback', @NextSlide);
+saveProgress = uicontrol(analysisFig, 'Units', 'Normalized', 'Style', 'pushbutton', 'String', 'Save Current Progress',...
+    'Position', [0.6,0.75,0.375,0.15], 'Tag', 'SavePB', 'FontSize', 14, 'Callback', @SaveProgress);
+annotation(analysisFig, 'rectangle', 'Position', [0.6,0.37,0.375, 0.25]);
+fileNameTxt = uicontrol(analysisFig, 'Units', 'Normalized', 'Style', 'text', 'String', sprintf('%s (%i/%i)', orientData.FileIndices{orientData.CurIndex,1}, orientData.CurIndex, size(orientData.FileIndices,1)),...
+    'Position', [0.1 0.9 0.5 0.05], 'Tag', 'FileNameTXT', 'FontSize', 12);
+
 imageAxes = axes(analysisFig, 'Position', [0.1 0.1 0.5 0.8], 'visible', 'off');
 curFig = imread(orientData.FileIndices{orientData.CurIndex,1});
 curFigCropped = imcrop(curFig,[cropVals(1,1) cropVals(1,2) cropVals(2,1)-cropVals(1,1) cropVals(2,2)-cropVals(1,2)]);
@@ -85,17 +97,6 @@ portDot = plot(portVals(1)-cropVals(1,1),portVals(2)-cropVals(1,2), 'Marker', 'o
 headDot = plot(1,1, 'Marker', 'o', 'MarkerFaceColor', 'red', 'MarkerSize', 10, 'visible', 'off', 'Tag', 'HeadDot');
 tailDot = plot(1,1, 'Marker', 'o', 'MarkerFaceColor', 'green', 'MarkerSize', 10, 'visible', 'off', 'Tag', 'TailDot');
 
-annotation(analysisFig, 'rectangle', 'Position', [0.6,0.37,0.375, 0.25]);
-fileNameTxt = uicontrol(analysisFig, 'Units', 'Normalized', 'Style', 'text', 'String', sprintf('%s (%i/%i)', orientData.FileIndices{orientData.CurIndex,1}, orientData.CurIndex, size(orientData.FileIndices,1)),...
-    'Position', [0.1 0.9 0.5 0.05], 'Tag', 'FileNameTXT', 'FontSize', 12);
-markHeadLoc = uicontrol(analysisFig, 'Units', 'Normalized', 'Style', 'pushbutton', 'String', 'Mark Head (Implant) Location',...
-    'Position', [0.6135,0.5,0.35,0.08], 'Tag', 'HeadMarkPB', 'FontSize', 14, 'Callback', @MarkHeadLocation);
-markTailLoc = uicontrol(analysisFig, 'Units', 'Normalized', 'Style', 'pushbutton', 'String', 'Mark the Base of the Rat''s Tail',...
-    'Position', [0.6135,0.4,0.35,0.08], 'Tag', 'TailMarkPB', 'FontSize', 14, 'Callback', @MarkTailLocation);
-saveProgress = uicontrol(analysisFig, 'Units', 'Normalized', 'Style', 'pushbutton', 'String', 'Save Current Progress',...
-    'Position', [0.6,0.75,0.375,0.15], 'Tag', 'SavePB', 'FontSize', 14, 'Callback', @SaveProgress);
-nextSlide = uicontrol(analysisFig, 'Units', 'Normalized', 'Style', 'pushbutton', 'String', 'Next Slide',...
-    'Position', [0.6,0.1,0.375,0.2], 'Tag', 'NexSlidePB', 'FontSize', 14, 'Callback', @NextSlide);
 
 end
 
@@ -275,6 +276,7 @@ headYcol = strcmp(orientData.FileIndicesColIDs, 'HeadY');
 
 orientData.FileIndices{orientData.CurIndex, headXcol} = curHeadX + orientData.CropVals(1,1);
 orientData.FileIndices{orientData.CurIndex, headYcol} = curHeadY + orientData.CropVals(1,2);
+% uistack(analysisFig.Children(5),'up',2);
 
 set(analysisFig, 'UserData', orientData);
 set(source, 'string', 'Mark Head (Implant) Location');
@@ -292,6 +294,7 @@ tailYcol = strcmp(orientData.FileIndicesColIDs, 'TailY');
 
 orientData.FileIndices{orientData.CurIndex, tailXcol} = curTailX + orientData.CropVals(1,1);
 orientData.FileIndices{orientData.CurIndex, tailYcol} = curTailY + orientData.CropVals(1,2);
+% uistack(analysisFig.Children(5),'up',2);
 
 set(analysisFig, 'UserData', orientData);
 set(source, 'string', 'Mark the Base of the Rat''s Tail');
@@ -308,6 +311,7 @@ analysisFig = findobj('Tag', 'AnalysisFig');
 orientData = get(analysisFig, 'UserData');
 headXcol = strcmp(orientData.FileIndicesColIDs, 'HeadX');
 tailXcol = strcmp(orientData.FileIndicesColIDs, 'TailX');
+% uistack(analysisFig.Children(5),'up',2);
 % Check to make sure everything is marked
 if isempty(orientData.FileIndices{orientData.CurIndex, headXcol})
     msgbox('Head Location Not Marked!', 'Error','error');
@@ -339,5 +343,6 @@ if ~isfield(orientData, 'FileSaveName')
     orientData.FileSaveName = [path file];
 end
 save(orientData.FileSaveName, 'orientData');
+assignin('base', 'orientData', orientData);
 set(analysisFig, 'UserData', orientData);
 end
