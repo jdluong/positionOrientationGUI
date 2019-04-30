@@ -52,19 +52,79 @@ for o = 1:4
     odorLog(o,:) = [preTrialBehavMatrix.Odor]==o;
 end
 
-
 %%
+portPosX = strcmp(orientMatrixColIDs, 'PortX');
+portPosY = strcmp(orientMatrixColIDs, 'PortY');
+headPosX = strcmp(orientMatrixColIDs, 'HeadX');
+headPosY = strcmp(orientMatrixColIDs, 'HeadY');
+tailPosX = strcmp(orientMatrixColIDs, 'TailX');
+tailPosY = strcmp(orientMatrixColIDs, 'TailY');
+
 figure;
 sps = nan(1,4);
 for o = 1:4
     curOrientOdor = cell2mat(ptOrient(odorLog(o,:) & corrTrlLog & isLog)');
     sps(o) = subplot(1,4,o);
-    headX = curOrientOdor(~isnan(curOrientOdor(:,4)),4);
-    headY = curOrientOdor(~isnan(curOrientOdor(:,5)),5);
+    headX = curOrientOdor(~isnan(curOrientOdor(:,headPosX)),headPosX);
+    headY = curOrientOdor(~isnan(curOrientOdor(:,headPosY)),headPosY);
     scatter(headX, headY, 'b');
     hold on;
-    tailX = curOrientOdor(~isnan(curOrientOdor(:,6)),6);
-    tailY = curOrientOdor(~isnan(curOrientOdor(:,7)),7);
+    tailX = curOrientOdor(~isnan(curOrientOdor(:,tailPosX)),tailPosX);
+    tailY = curOrientOdor(~isnan(curOrientOdor(:,tailPosY)),tailPosY);
     scatter(tailX, tailY, 'r');
 end
 linkaxes(sps, 'xy');
+
+%%
+portAngleCol = strcmp(orientMatrixColIDs, 'PortAngle');
+headAngleCol = strcmp(orientMatrixColIDs, 'HeadAngle');
+tailAngleCol = strcmp(orientMatrixColIDs, 'TailAngle');
+htCol = strcmp(orientMatrixColIDs, 'HeadTailLength');
+hpCol = strcmp(orientMatrixColIDs, 'HeadPortLength');
+ptCol = strcmp(orientMatrixColIDs, 'PortTailLength');
+
+figure
+sps = nan(1,9);
+for angle = 1:3
+    switch angle
+        case 1
+            curAngleData = orientMatrix(:, portAngleCol);
+            xLbl = 'Port Angle';
+        case 2
+            curAngleData = orientMatrix(:, headAngleCol);
+            xLbl = 'Head Angle';
+        case 3
+            curAngleData = orientMatrix(:, tailAngleCol);
+            xLbl = 'Tail Angle';
+    end
+    for side = 1:3
+        sps(sub2ind([3,3],angle,side)) = subplot(3,3,sub2ind([3,3],angle,side));
+        switch side
+            case 1
+                curSideData = orientMatrix(:, htCol);
+                yLbl = 'Head-Tail Distance';
+            case 2
+                curSideData = orientMatrix(:, hpCol);
+                yLbl = 'Head-Port Distance';
+            case 3
+                curSideData = orientMatrix(:, ptCol);
+                yLbl = 'Tail-Port Distance';
+        end
+%         curHist = histcounts2(curAngleData, curSideData, 200);
+        histogram2(curAngleData, curSideData, 50, 'DisplayStyle', 'tile');
+        xlabel(xLbl);
+        ylabel(yLbl);
+    end
+end
+cMax = 1;
+for plot = 1:9
+    curLims = get(sps(plot), 'clim');
+    cMax = max([cMax, curLims]);
+end
+for plot = 1:9
+    set(sps(plot), 'clim', [0 cMax]);
+end  
+linkaxes(sps, 'xy');
+        
+                
+
