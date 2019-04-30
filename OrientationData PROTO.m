@@ -111,7 +111,7 @@ for angle = 1:3
                 yLbl = 'Tail-Port Distance';
         end
 %         curHist = histcounts2(curAngleData, curSideData, 200);
-        histogram2(curAngleData, curSideData, 50, 'DisplayStyle', 'tile');
+        histogram2(curAngleData, curSideData, 0:3:180, 0:3:140, 'DisplayStyle', 'tile');
         xlabel(xLbl);
         ylabel(yLbl);
     end
@@ -125,6 +125,6 @@ for plot = 1:9
     set(sps(plot), 'clim', [0 cMax]);
 end  
 linkaxes(sps, 'xy');
-        
+colormap jet        
                 
 
