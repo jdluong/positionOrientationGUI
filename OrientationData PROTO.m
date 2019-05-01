@@ -116,15 +116,93 @@ for angle = 1:3
         ylabel(yLbl);
     end
 end
-cMax = 1;
-for plot = 1:9
-    curLims = get(sps(plot), 'clim');
-    cMax = max([cMax, curLims]);
-end
-for plot = 1:9
-    set(sps(plot), 'clim', [0 cMax]);
-end  
+% cMax = 1;
+% for plot = 1:9
+%     curLims = get(sps(plot), 'clim');
+%     cMax = max([cMax, curLims]);
+% end
+% for plot = 1:9
+%     set(sps(plot), 'clim', [0 cMax]);
+% end  
 linkaxes(sps, 'xy');
 colormap jet        
                 
+%%
+slideWindowSize = 200;
+instFRgauss = gausswin(slideWindowSize);
+instFRgauss = instFRgauss/(length(instFRgauss)*mode(diff(behavMatrix(:,1))));
+
+uniInstFR = nan(size(ensembleMatrix,1), size(ensembleMatrix,2)-1);
+for uni = 2:size(ensembleMatrix,2)
+    uniInstFR(:,uni-1) = conv(ensembleMatrix(:,uni), instFRgauss, 'same');
+end
+
+portAngleCol = strcmp(orientMatrixColIDs, 'PortAngle');
+headAngleCol = strcmp(orientMatrixColIDs, 'HeadAngle');
+tailAngleCol = strcmp(orientMatrixColIDs, 'TailAngle');
+htCol = strcmp(orientMatrixColIDs, 'HeadTailLength');
+hpCol = strcmp(orientMatrixColIDs, 'HeadPortLength');
+ptCol = strcmp(orientMatrixColIDs, 'PortTailLength');
+
+for uni = 1:size(uniInstFR,2)
+    figure
+    sps = nan(1,9);
+    for angle = 1:3
+        switch angle
+            case 1
+                curAngleData = orientMatrix(:, portAngleCol);
+                xLbl = 'Port Angle';
+            case 2
+                curAngleData = orientMatrix(:, headAngleCol);
+                xLbl = 'Head Angle';
+            case 3
+                curAngleData = orientMatrix(:, tailAngleCol);
+                xLbl = 'Tail Angle';
+        end
+        for side = 1:3
+            sps(sub2ind([3,3],angle,side)) = subplot(3,3,sub2ind([3,3],angle,side));
+            switch side
+                case 1
+                    curSideData = orientMatrix(:, htCol);
+                    yLbl = 'Head-Tail Distance';
+                case 2
+                    curSideData = orientMatrix(:, hpCol);
+                    yLbl = 'Head-Port Distance';
+                case 3
+                    curSideData = orientMatrix(:, ptCol);
+                    yLbl = 'Tail-Port Distance';
+            end
+            curSpkRateMap = nan(60);
+            curAngleNdx = 0;
+            for curAngle = 0:3:177
+                curAngleBin = [curAngle curAngle+3];
+                curAngleNdx = curAngleNdx + 1;
+                curSideNdx = 0;
+                for curSide = 0:3:177
+                    curSideBin = [curSide curSide+3];
+                    curSideNdx = curSideNdx + 1;
+                    
+                    curSpkRateMap(curSideNdx, curAngleNdx) = nanmean(uniInstFR((curAngleData>=curAngleBin(1) & curAngleData<curAngleBin(2)) &...
+                        (curSideData>=curSideBin(1) & curSideData<curSideBin(2)),uni));
+                end
+            end     
+            imagesc(curSpkRateMap);
+            set(gca, 'ydir', 'normal', 'xtick', 0:10:60, 'xticklabel', 0:30:180,...
+                'ytick', 0:10:60, 'yticklabel', 0:30:180);
+            xlabel(xLbl);
+            ylabel(yLbl);
+            drawnow
+        end
+    end
+    cMax = 1;
+    for plot = 1:9
+        curLims = get(sps(plot), 'clim');
+        cMax = max([cMax, curLims]);
+    end
+    for plot = 1:9
+        set(sps(plot), 'clim', [0 cMax]);
+    end
+    colormap jet    
+    title(sps(1), ensembleMatrixColIDs(uni+1));
+end
 
